@@ -53,8 +53,8 @@ cat > ${client}.conf <<EOL
 PrivateKey = $(cat ${client}.key)
 Address = ${client_ip}/24
 
-PostUp = echo $'WATCHDOG_ENABLED=1\nWATCHDOG_RETRIES=3\nWIREGUARD_ADDRESS=${SERVER_NETWORK}.${SERVER_IP}\nWIREGUARD_INTERFACE=wg0\n' > /etc/wireguard/watchdog.var
-PostDown = echo $'WATCHDOG_ENABLED=0\nWATCHDOG_RETRIES=3\nWIREGUARD_ADDRESS=${SERVER_NETWORK}.${SERVER_IP}\nWIREGUARD_INTERFACE=wg0\n' > /etc/wireguard/watchdog.var
+PostUp = echo $'WATCHDOG_ENABLED=1\nWATCHDOG_RETRIES=3\nWIREGUARD_ADDRESS=${SERVER_NETWORK}.${SERVER_IP}\nWIREGUARD_INTERFACE=wg0\nSLEEP_TIMER=5\n' > /etc/wireguard/watchdog/watchdog.var
+PostDown = echo $'WATCHDOG_ENABLED=0\nWATCHDOG_RETRIES=3\nWIREGUARD_ADDRESS=${SERVER_NETWORK}.${SERVER_IP}\nWIREGUARD_INTERFACE=wg0\nSLEEP_TIMER=5' > /etc/wireguard/watchdog/watchdog.var
 
 [Peer]
 PublicKey = $(cat server.pub)
