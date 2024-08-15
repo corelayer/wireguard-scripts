@@ -5,13 +5,17 @@ if [ $# -lt 4 ]; then
 	exit 2
 fi
 
-if ! [ -f server.var ]; then
+if ! [ -f /etc/wireguard/scripts/server/config/server.var ]; then
 	echo "server.var does not exist, create server first"
 	exit 1
 fi
 
+if ! [ -d /etc/wireguard/scripts/server/clients ]; then
+	mkdir -p /etc/wireguard/scripts/server/clients
+fi
+
 # Load server variables
-. ./server.var
+. /etc/wireguard/scripts/server/config/server.var
 
 echo "initialize client variables"
 # Set variables
@@ -33,7 +37,7 @@ if [ $1 -gt 254 ]; then
 	exit 2
 fi
 
-search=${client_id}"_*.conf"
+search=/etc/wireguard/scripts/server/clients/${client_id}"_*.conf"
 if [ -f $search ]; then
 	echo "client id already exists"
 	exit 2
@@ -45,19 +49,19 @@ echo "setting up ${client}"
 
 # Generate keys and config for new client
 echo "creating client keys"
-wg genkey | tee ${client}.key | wg pubkey > ${client}.pub
+wg genkey | tee /etc/wireguard/scripts/server/clients/${client}.key | wg pubkey > /etc/wireguard/scripts/server/clients/${client}.pub
 
 echo "creating client configuration"
-cat > ${client}.conf <<EOL
+cat > /etc/wireguard/scripts/server/clients/${client}.conf <<EOL
 [Interface]
-PrivateKey = $(cat ${client}.key)
+PrivateKey = $(cat /etc/wireguard/scripts/server/clients/${client}.key)
 Address = ${client_ip}/24
 
 PostUp = echo $'WATCHDOG_ENABLED=1\nWATCHDOG_RETRIES=3\nWIREGUARD_ADDRESS=${SERVER_NETWORK}.${SERVER_IP}\nWIREGUARD_INTERFACE=wg0\nSLEEP_TIMER=5\n' > /etc/wireguard/watchdog/watchdog.var
 PostDown = echo $'WATCHDOG_ENABLED=0\nWATCHDOG_RETRIES=3\nWIREGUARD_ADDRESS=${SERVER_NETWORK}.${SERVER_IP}\nWIREGUARD_INTERFACE=wg0\nSLEEP_TIMER=5' > /etc/wireguard/watchdog/watchdog.var
 
 [Peer]
-PublicKey = $(cat server.pub)
+PublicKey = $(cat /etc/wireguard/scripts/server/config/server.pub)
 Endpoint = ${PUBLIC_IP}:${PUBLIC_PORT}
 AllowedIPs = ${SERVER_NETWORK}.${SERVER_IP}/32
 PersistentKeepAlive = 25
@@ -65,6 +69,6 @@ EOL
 
 # Reload server configuration
 if [ $reload_server -eq 1 ]; then
-	sh reload_server.sh
+	sh /etc/wireguard/scripts/server/reload_server.sh
 fi
 exit 0

@@ -1,21 +1,21 @@
 #!/bin/sh
 
-if ! [ -f server.var ]; then
+if ! [ -f /etc/wireguard/scripts/server/config/server.var ]; then
 	echo "server.var does not exist, create server first"
 	exit 1
 fi
 
-if ! [ -f server.conf ]; then
+if ! [ -f /etc/wireguard/scripts/server/config/server.conf ]; then
 	echo "server.conf does not exist, create server first"
 	exit 1
 fi
 
 # Load server variables
-. ./server.var
+. /etc/wireguard/scripts/server/config/server.var
 
 # Rebuild wg0.conf
 echo "update server configuration"
-cat server.conf > ${SERVER_NAME}.conf
+cat /etc/wireguard/scripts/server/config/server.conf > /etc/wireguard/${SERVER_NAME}.conf
 
 i=2
 imax=254
@@ -24,14 +24,14 @@ while [ $i -le $imax ]
 do
         current_id=$(printf %03d ${i})
         current_ip=${SERVER_NETWORK}.${i}
-        current_config=${current_id}*.conf
+        current_config=/etc/wireguard/scripts/server/clients/${current_id}*.conf
         current_name=$(echo $current_config)
         if [ -f ${current_config} ]; then
                 echo "adding client ${current_id} $current_name"
-                cat >> ${SERVER_NAME}.conf <<EOL
+                cat >> /etc/wireguard/${SERVER_NAME}.conf <<EOL
 # $current_name
 [Peer]
-PublicKey = $(cat ${current_id}*.pub)
+PublicKey = $(cat /etc/wireguard/scripts/server/clients/${current_id}*.pub)
 AllowedIPs = ${current_ip}/32
 
 EOL

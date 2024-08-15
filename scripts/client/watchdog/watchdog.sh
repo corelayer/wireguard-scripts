@@ -2,27 +2,27 @@
 
 create_crontab_directory()
 {
-    if ! [ -d /etc/wireguard/watchdog/crontab ]; then
-        mkdir -p /etc/wireguard/watchdog/crontab
+    if ! [ -d /etc/wireguard/scripts/client/watchdog/crontab ]; then
+        mkdir -p /etc/wireguard/scripts/client/watchdog/crontab
     fi
 }
 
 add_crontab_entry()
 {
     create_crontab_directory
-    crontab -l > /etc/wireguard/watchdog/crontab/enable_watchdog.bak
-    cp /etc/wireguard/watchdog/crontab/enable_watchdog.bak /etc/wireguard/watchdog/crontab/enable_watchdog.new
-    sed -i -e '$a\* * * * * sh /etc/wireguard/watchdog/watchdog.sh run | logger -t wireguard-watchdog 2>&1' /etc/wireguard/watchdog/crontab/enable_watchdog.new
-    crontab /etc/wireguard/watchdog/crontab/enable_watchdog.new
+    crontab -l > /etc/wireguard/scripts/client/watchdog/crontab/enable_watchdog.bak
+    cp /etc/wireguard/scripts/client/watchdog/crontab/enable_watchdog.bak /etc/wireguard/scripts/client/watchdog/crontab/enable_watchdog.new
+    sed -i -e '$a\* * * * * sh /etc/wireguard/scripts/client/watchdog/watchdog.sh run | logger -t wireguard-watchdog 2>&1' /etc/wireguard/scripts/client/watchdog/crontab/enable_watchdog.new
+    crontab /etc/wireguard/scripts/client/watchdog/crontab/enable_watchdog.new
 }
 
 remove_crontab_entry()
 {
     create_crontab_directory
-    crontab -l > /etc/wireguard/watchdog/crontab/disable_watchdog.bak
-    cp /etc/wireguard/watchdog/crontab/disable_watchdog.bak /etc/wireguard/watchdog/crontab/disable_watchdog.new
-    sed -i -e '/wireguard-watchdog/d' /etc/wireguard/watchdog/crontab/disable_watchdog.new
-    crontab /etc/wireguard/watchdog/crontab/disable_watchdog.new
+    crontab -l > /etc/wireguard/scripts/client/watchdog/crontab/disable_watchdog.bak
+    cp /etc/wireguard/scripts/client/watchdog/crontab/disable_watchdog.bak /etc/wireguard/scripts/client/watchdog/crontab/disable_watchdog.new
+    sed -i -e '/wireguard-watchdog/d' /etc/wireguard/scripts/client/watchdog/crontab/disable_watchdog.new
+    crontab /etc/wireguard/scripts/client/watchdog/crontab/disable_watchdog.new
 }
 
 is_connection_up()
@@ -50,8 +50,8 @@ is_crontab_enabled()
 
 is_watchdog_configured()
 {
-    if ! [ -f /etc/wireguard/watchdog/watchdog.var ]; then
-        echo "could not find /etc/wireguard/watchdog/watchdog.var"
+    if ! [ -f /etc/wireguard/scripts/client/watchdog/watchdog.var ]; then
+        echo "could not find /etc/wireguard/scripts/client/watchdog/watchdog.var"
         return 1
     fi
     return 0
@@ -138,7 +138,7 @@ run_watchdog()
     fi
 
     # Load monitor variables
-    . /etc/wireguard/watchdog/watchdog.var
+    . /etc/wireguard/scripts/client/watchdog/watchdog.var
 
     if ! is_watchdog_enabled $WATCHDOG_ENABLED; then
         echo "watchdog is disabled"
