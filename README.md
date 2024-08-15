@@ -123,15 +123,18 @@ As an example, we have a wireguard server with the following configuration:
 
 
 ### Linux
+#### Configuration
 - Go to ```/etc/wireguard```
 - Create/Open ```wg0.conf``` for editing
 - Copy the contents of your client configuration into the file and save.
 - Start/Reload the systemd service for your connection: ```systemctl restart wg-quick@wg0``` / ```systemctl reload wg-quick@wg0```
 
 #### Watchdog
-
+Execute the following commands as ```root```:
 - Copy ```watchdog.sh``` script in ```/etc/wireguard/watchdog.sh```
-- Edit the crontab file for root: ```sudo crontab -e```
+- Set the owner for the script: ```chown root:root /etc/wireguard/watchdog.sh```
+- Set the permissions for the script: ```chmod 600 /etc/wireguard/watchdog.sh```
+- Edit the crontab file for root: ```crontab -e```
 - Add the following line and save: ```* * * * * sh /etc/wireguard/watchdog.sh | logger -t wireguard-watchdog 2>&1```
 
 You can find the logs in syslog.
